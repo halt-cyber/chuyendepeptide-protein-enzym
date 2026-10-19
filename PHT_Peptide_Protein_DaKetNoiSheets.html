@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điệp Vụ Peptide - Protein - Enzyme (Hóa 12)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a; 
+            --primary-light: #3b82f6;
+            --secondary: #dc2626; 
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --success: #10b981;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px 10px; display: flex; justify-content: center; line-height: 1.6; }
+        .container { max-width: 850px; width: 100%; }
+
+        .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); border-top: 5px solid var(--primary); }
+        .header-card { text-align: center; background: linear-gradient(135deg, #0f172a, #1e3a8a); color: white; border-top: none; }
+        .header-card h1 { margin: 0 0 5px 0; font-size: 1.8rem; text-transform: uppercase; color: #f87171; }
+        .header-card h2 { margin: 0 0 15px 0; font-size: 1.1rem; font-weight: 500; opacity: 0.9; }
+        
+        .student-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; }
+        .student-info input { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; text-align: center;}
+
+        h3 { color: var(--primary); margin-top: 0; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; text-transform: uppercase; font-size: 1.2rem;}
+        
+        input[type="text"], select, textarea { width: 100%; padding: 10px; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 15px; transition: 0.3s; font-family: 'Roboto', sans-serif;}
+        input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; }
+
+        .question { margin-bottom: 20px; background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; }
+        .question-text { font-weight: bold; margin-top: 0; margin-bottom: 12px; font-size: 1.05rem; }
+
+        .options label { display: flex; align-items: center; margin-bottom: 8px; cursor: pointer; padding: 10px; border-radius: 6px; background: #fff; border: 1px solid #e5e7eb; transition: 0.2s; }
+        .options label:hover { background: #f3f4f6; }
+        .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); }
+        
+        .tf-grid { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e5e7eb; }
+        .tf-opts { display: flex; gap: 10px; justify-content: flex-end; }
+        .tf-opts label { background: #fff; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; font-size: 0.9rem; cursor: pointer;}
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; background: #fff; }
+        th, td { border: 1px solid #d1d5db; padding: 10px; text-align: left; vertical-align: middle; }
+        th { background-color: var(--primary); color: white; text-align: center; font-weight: 500;}
+
+        .btn-submit { width: 100%; border: none; padding: 16px; font-size: 16px; border-radius: 30px; cursor: pointer; font-weight: bold; text-transform: uppercase; color: white; background: linear-gradient(135deg, var(--secondary), #991b1b); box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3); margin-top: 20px;}
+        .btn-checkpoint { width: 100%; border: none; padding: 16px; font-size: 16px; border-radius: 12px; cursor: pointer; font-weight: bold; text-transform: uppercase; color: white; background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 6px rgba(5, 150, 105, 0.3); margin-top: 20px; transition: 0.3s;}
+        
+        .remedial-box { display: none; margin-top: 20px; padding: 20px; background: #fffbeb; border: 2px dashed #f59e0b; border-radius: 8px; text-align: left; }
+        .remedial-box h4 { color: #b45309; font-size: 1.2rem; margin-top: 0; text-align: center; text-transform: uppercase;}
+        
+        .feedback { display: block; font-size: 0.85rem; margin-top: 5px; font-weight: bold; }
+        .feedback.ok { color: var(--success); }
+        .feedback.err { color: var(--danger); }
+        
+        /* Chống hiển thị lỗi khi chưa làm */
+        .section-locked { display: none; opacity: 0; transition: opacity 1s ease-in-out; }
+
+        @media(max-width: 600px) { 
+            .student-info { grid-template-columns: 1fr; } 
+            .tf-grid { grid-template-columns: 1fr; }
+            .tf-opts { justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- TRẠM CHỈ HUY -->
+        <div class="card header-card">
+            <h1>HỒ SƠ KHỞI ĐỘNG</h1>
+            <h2>CHUYÊN ÁN HÓA HỌC 12: ĐIỆP VỤ PEPTIDE - PROTEIN - ENZYME</h2>
+            <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+                <button type="button" id="btnSound" onclick="toggleSound()" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.3s;">
+                    🔊 Âm thanh: BẬT
+                </button>
+            </div>
+
+            <p style="font-style: italic; color: #e2e8f0; font-size: 0.9rem; margin-top: -10px;">Nhiệm vụ Pha 1: Trinh sát độc lập tại nhà</p>
+            
+            <div class="student-info">
+                <input type="text" id="studentName" placeholder="Mã định danh thám tử (Họ và tên)..." required>
+                <input type="text" id="studentClass" placeholder="Đơn vị (Lớp)..." required>
+            </div>
+        </div>
+
+        <form id="quizForm">
+            <!-- ================= PHẦN I: TRẮC NGHIỆM ================= -->
+            <div id="part1-section" class="card">
+                <h3>📂 PHẦN I. CÂU TRẮC NGHIỆM NHIỀU LỰA CHỌN</h3>
+                <p style="font-style: italic; color: #6b7280; margin-top: -10px; margin-bottom: 20px;">* Nhiệm vụ: Trả lời 10 câu hỏi để thu thập dữ liệu. Yêu cầu đúng >= 8/10 câu để qua ải.</p>
+
+                <div class="question check-mcq-p1" data-ans="B">
+                    <p class="question-text">Câu 1. Phát biểu nào sau đây không đúng khi nói về protein và peptide?</p>
+                    <div class="options">
+                        <label><input type="radio" name="p1_q1" value="A"> A. Protein trong lòng trắng trứng (albumin) có phản ứng màu biuret.</label>
+                        <label><input type="radio" name="p1_q1" value="B"> B. Protein đơn giản được tạo nên từ các gốc β-amino acid.</label>
+                        <label><input type="radio" name="p1_q1" value="C"> C. Trong thành phần phân tử của protein luôn có chứa nguyên tố nitrogen.</label>
+                        <label><input type="radio" name="p1_q1" value="D"> D. Protein bị thủy phân dưới tác dụng của acid, base hoặc enzyme.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="C">
+                    <p class="question-text">Câu 2. Số liên kết peptide có trong phân tử peptide Gly-Ala-Lys-Gly-Ala là</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <label><input type="radio" name="p1_q2" value="A"> A. 5.</label>
+                        <label><input type="radio" name="p1_q2" value="B"> B. 2.</label>
+                        <label><input type="radio" name="p1_q2" value="C"> C. 4.</label>
+                        <label><input type="radio" name="p1_q2" value="D"> D. 3.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="D">
+                    <p class="question-text">Câu 3. Chất nào sau đây có phản ứng màu biuret với Cu(OH)₂?</p>
+                    <div class="options">
+                        <label><input type="radio" name="p1_q3" value="A"> A. Saccharose.</label>
+                        <label><input type="radio" name="p1_q3" value="B"> B. Tinh bột.</label>
+                        <label><input type="radio" name="p1_q3" value="C"> C. Triolein.</label>
+                        <label><input type="radio" name="p1_q3" value="D"> D. Albumin (lòng trắng trứng).</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="B">
+                    <p class="question-text">Câu 4. Chất nào sau đây là glycine?</p>
+                    <div class="options">
+                        <label><input type="radio" name="p1_q4" value="A"> A. CH₃-CH(NH₂)-COOH.</label>
+                        <label><input type="radio" name="p1_q4" value="B"> B. H₂N-CH₂-COOH.</label>
+                        <label><input type="radio" name="p1_q4" value="C"> C. H₂N-CH₂-CH₂-COOH.</label>
+                        <label><input type="radio" name="p1_q4" value="D"> D. CH₃-CH(NH₂)-CH₂-COOH.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="C">
+                    <p class="question-text">Câu 5. Hợp chất nào sau đây thuộc loại protein đơn giản?</p>
+                    <div class="options">
+                        <label><input type="radio" name="p1_q5" value="A"> A. Tinh bột.</label>
+                        <label><input type="radio" name="p1_q5" value="B"> B. Alanine.</label>
+                        <label><input type="radio" name="p1_q5" value="C"> C. Albumin (lòng trắng trứng).</label>
+                        <label><input type="radio" name="p1_q5" value="D"> D. Tristearin.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="C">
+                    <p class="question-text">Câu 6. Loại liên kết được hình thành giữa các amino acid trong peptide được gọi là</p>
+                    <div class="options">
+                        <label><input type="radio" name="p1_q6" value="A"> A. liên kết ion.</label>
+                        <label><input type="radio" name="p1_q6" value="B"> B. liên kết hydrogen.</label>
+                        <label><input type="radio" name="p1_q6" value="C"> C. liên kết peptide.</label>
+                        <label><input type="radio" name="p1_q6" value="D"> D. liên kết cộng hoá trị.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="A">
+                    <p class="question-text">Câu 7. Quá trình di chuyển của các amino acid trong điện trường được gọi là</p>
+                    <div class="options">
+                        <label><input type="radio" name="p1_q7" value="A"> A. sự điện di.</label>
+                        <label><input type="radio" name="p1_q7" value="B"> B. sự điện li.</label>
+                        <label><input type="radio" name="p1_q7" value="C"> C. sự điện phân.</label>
+                        <label><input type="radio" name="p1_q7" value="D"> D. sự điện giải.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="C">
+                    <p class="question-text">Câu 8. Protein hình cầu tan được trong nước tạo dung dịch keo như</p>
+                    <div class="options">
+                        <label><input type="radio" name="p1_q8" value="A"> A. keratin (có ở tóc, móng sừng).</label>
+                        <label><input type="radio" name="p1_q8" value="B"> B. collagen (có ở da, sụn).</label>
+                        <label><input type="radio" name="p1_q8" value="C"> C. albumin (có ở lòng trắng trứng).</label>
+                        <label><input type="radio" name="p1_q8" value="D"> D. myosin (có ở cơ bắp).</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="D">
+                    <p class="question-text">Câu 9. Cho các phát biểu sau:<br>
+                    (a) Trong dung dịch, glycine tồn tại chủ yếu ở dạng ion lưỡng cực.<br>
+                    (b) Amino acid là chất rắn kết tinh, dễ tan trong nước.<br>
+                    (c) Phản ứng thế bromine vào vòng thơm của aniline dễ hơn benzene.<br>
+                    (d) Hợp chất H₂N-CH₂-COO-CH₃ tác dụng được với dung dịch NaOH và dung dịch HCl.<br>
+                    (e) Triolein và protein có cùng thành phần nguyên tố.<br>
+                    (g) Trong phân tử, các amino acid đều chỉ có một nhóm NH₂ và một nhóm COOH.<br>
+                    Số phát biểu đúng là:</p>
+                    <div class="options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <label><input type="radio" name="p1_q9" value="A"> A. 5.</label>
+                        <label><input type="radio" name="p1_q9" value="B"> B. 3.</label>
+                        <label><input type="radio" name="p1_q9" value="C"> C. 6.</label>
+                        <label><input type="radio" name="p1_q9" value="D"> D. 4.</label>
+                    </div>
+                </div>
+
+                <div class="question check-mcq-p1" data-ans="C">
+                    <p class="question-text">Câu 10. Kết quả thí nghiệm của các chất X, Y, Z với các thuốc thử được cho trong bảng sau:</p>
+                    <table>
+                        <tr><th>Chất</th><th>Thuốc thử</th><th>Hiện tượng</th></tr>
+                        <tr><td>X</td><td>Cu(OH)₂ / OH⁻</td><td>Tạo dung dịch màu tím</td></tr>
+                        <tr><td>Y</td><td>I₂ / NaOH</td><td>Tạo kết tủa vàng</td></tr>
+                        <tr><td>Z</td><td>Nước Br₂</td><td>Tạo kết tủa trắng</td></tr>
+                    </table>
+                    <p>Các chất X, Y, Z lần lượt là:</p>
+                    <div class="options">
+                        <label><input type="radio" name="p1_q10" value="A"> A. acetone, Gly-Ala-Gly, aniline.</label>
+                        <label><input type="radio" name="p1_q10" value="B"> B. aniline, acetone, Gly-Ala-Gly.</label>
+                        <label><input type="radio" name="p1_q10" value="C"> C. Gly-Ala-Gly, acetone, aniline.</label>
+                        <label><input type="radio" name="p1_q10" value="D"> D. Gly-Ala-Gly, aniline, acetone.</label>
+                    </div>
+                </div>
+
+                <button type="button" id="btn-check-p1" class="btn-checkpoint" onclick="checkPart1()">🛑 XÁC THỰC PHẦN I</button>
+                
+                <!-- Hộp củng cố Phần 1 -->
+                <div id="remedial-p1" class="remedial-box">
+                    <h4>⚠️ CẢNH BÁO: KIẾN THỨC NỀN TẢNG THIẾU HỤT</h4>
+                    <p style="color: #374151; font-weight: bold; text-align: center;">Bạn chưa đạt đủ 8/10 câu. Hãy vượt qua bài kiểm tra phụ để mở khóa Phần II.</p>
+                    
+                    <div class="question" style="background: #fff; border: 1px solid #fcd34d;">
+                        <p class="question-text">1. (Củng cố) Đặc điểm nào sau đây là điều kiện bắt buộc để một peptide có phản ứng màu biuret?</p>
+                        <div class="options check-rem-p1" data-ans="B">
+                            <label><input type="radio" name="r1_1" value="A"> A. Phải là dipeptide trở lên</label>
+                            <label><input type="radio" name="r1_1" value="B"> B. Phải từ tripeptide trở lên (có từ 2 liên kết peptide)</label>
+                        </div>
+                    </div>
+                    <div class="question" style="background: #fff; border: 1px solid #fcd34d;">
+                        <p class="question-text">2. (Củng cố) Protein đơn giản là những protein khi thủy phân hoàn toàn chỉ cho hỗn hợp các:</p>
+                        <div class="options check-rem-p1" data-ans="A">
+                            <label><input type="radio" name="r1_2" value="A"> A. α-amino acid</label>
+                            <label><input type="radio" name="r1_2" value="B"> B. β-amino acid</label>
+                        </div>
+                    </div>
+                    <button type="button" style="width: 100%; border: none; padding: 12px; font-size: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; background: #d97706; margin-top: 10px;" onclick="verifyRemedialP1()">🔄 KIỂM TRA & ĐI TIẾP</button>
+                </div>
+            </div>
+
+            <!-- ================= PHẦN II: ĐÚNG/SAI (BỊ KHÓA) ================= -->
+            <div id="part2-section" class="section-locked">
+                <div class="card">
+                    <h3>📂 PHẦN II. ĐÚNG/SAI</h3>
+                    <p style="font-style: italic; color: #6b7280; margin-top: -10px; margin-bottom: 20px;">* Nhiệm vụ: Phân tích 4 nhận định (16 ý). Yêu cầu đúng >= 12/16 ý để qua ải.</p>
+
+                    <div class="question">
+                        <p class="question-text">Câu 1. Tiến hành hai thí nghiệm với lòng trắng trứng (chứa protein albumin):<br>
+                        - TN1: Đun nóng 2 mL dung dịch lòng trắng trứng trong ống nghiệm.<br>
+                        - TN2: Cho 2 mL dung dịch lòng trắng trứng vào ống nghiệm, sau đó nhỏ thêm vài giọt HNO₃.</p>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>a) Ở TN1, xuất hiện kết tủa vón cục màu trắng do protein bị đông tụ bởi nhiệt độ.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q1a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1a" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>b) Ở TN2, xuất hiện kết tủa màu vàng do phản ứng đặc trưng của protein.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q1b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1b" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>c) Albumin là một loại protein hình cầu, tan tốt trong nước tạo thành dung dịch keo.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q1c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1c" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="F" style="border:none;">
+                            <span>d) Tất cả các loại protein đều không tan trong nước ở điều kiện thường.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q1d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q1d" value="F"> SAI</label></div>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <p class="question-text">Câu 2. Cho tripeptide mạch hở X có công thức cấu tạo rút gọn là Gly-Ala-Val.</p>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>a) Trong phân tử X có chứa 2 liên kết peptide -CO-NH-.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q2a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2a" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>b) Amino acid đầu N của X là Glycine (Gly) và đầu C là Valine (Val).</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q2b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2b" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>c) Thủy phân hoàn toàn 1 mol X trong môi trường acid thu được 1 mol Gly, 1 mol Ala và 1 mol Val.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q2c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2c" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="F" style="border:none;">
+                            <span>d) Phân tử Gly-Ala-Val không có khả năng tham gia phản ứng màu biuret với Cu(OH)₂.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q2d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q2d" value="F"> SAI</label></div>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <p class="question-text">Câu 3. Xét tính chất thủy phân và độ bền của peptide và protein:</p>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>a) Peptide và protein bị thủy phân khi đun nóng trong dung dịch acid hoặc dung dịch kiềm.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q3a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q3a" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>b) Enzyme là chất xúc tác sinh học có tính chọn lọc cao, xúc tác cho quá trình thủy phân protein trong cơ thể.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q3b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q3b" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="F">
+                            <span>c) Liên kết peptide -CO-NH- rất bền vững và không bị phân hủy khi đun nóng trong dung dịch NaOH.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q3c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q3c" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="T" style="border:none;">
+                            <span>d) Thủy phân hoàn toàn protein đơn giản thu được hỗn hợp các alpha-amino acid.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q3d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q3d" value="F"> SAI</label></div>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <p class="question-text">Câu 4. Trong đời sống hàng ngày, chúng ta gặp nhiều hiện tượng liên quan đến tính chất của protein:</p>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>a) Khi nấu canh cua, riêu cua đóng thành từng mảng nổi lên là do protein bị đông tụ bởi nhiệt độ.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q4a" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q4a" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>b) Nhỏ vài giọt dấm ăn (chứa acetic acid) vào sữa đậu nành thấy xuất hiện kết tủa do protein bị đông tụ bởi acid.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q4b" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q4b" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="T">
+                            <span>c) Tơ tằm và tóc con người có thành phần chính là protein, khi đốt cháy sẽ có mùi khét đặc trưng.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q4c" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q4c" value="F"> SAI</label></div>
+                        </div>
+                        <div class="tf-grid check-tf-p2" data-ans="F" style="border:none;">
+                            <span>d) Tóc, móng tay và sừng cừu (protein hình sợi) dễ dàng tan trong nước lạnh tạo thành dung dịch keo.</span>
+                            <div class="tf-opts"><label><input type="radio" name="p2_q4d" value="T"> ĐÚNG</label><label><input type="radio" name="p2_q4d" value="F"> SAI</label></div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="btn-check-p2" class="btn-checkpoint" onclick="checkPart2()">🛑 XÁC THỰC PHẦN II</button>
+                    
+                    <!-- Hộp củng cố Phần 2 -->
+                    <div id="remedial-p2" class="remedial-box">
+                        <h4>⚠️ CẢNH BÁO: LỖ HỔNG PHÂN TÍCH LOGIC</h4>
+                        <p style="color: #374151; font-weight: bold; text-align: center;">Bạn phân tích sai nhiều hơn 4 ý. Hãy vượt qua bài kiểm tra phụ để mở khóa Phần III.</p>
+                        
+                        <div class="question" style="background: #fff; border: 1px solid #fcd34d;">
+                            <p class="question-text">1. (Củng cố) Bản chất của phản ứng màu biuret là tạo ra phức chất có màu gì?</p>
+                            <div class="options check-rem-p2" data-ans="B">
+                                <label><input type="radio" name="r2_1" value="A"> A. Màu xanh lam</label>
+                                <label><input type="radio" name="r2_1" value="B"> B. Màu tím</label>
+                            </div>
+                        </div>
+                        <div class="question" style="background: #fff; border: 1px solid #fcd34d;">
+                            <p class="question-text">2. (Củng cố) Hiện tượng đông tụ protein xảy ra khi nào?</p>
+                            <div class="options check-rem-p2" data-ans="A">
+                                <label><input type="radio" name="r2_2" value="A"> A. Khi đun nóng hoặc thêm acid, base, muối sinh hóa</label>
+                                <label><input type="radio" name="r2_2" value="B"> B. Chỉ khi đun nóng ở nhiệt độ rất cao trên 100°C</label>
+                            </div>
+                        </div>
+                        <button type="button" style="width: 100%; border: none; padding: 12px; font-size: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; background: #d97706; margin-top: 10px;" onclick="verifyRemedialP2()">🔄 KIỂM TRA & ĐI TIẾP</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PHẦN III: TRẢ LỜI NGẮN (BỊ KHÓA) ================= -->
+            <div id="part3-section" class="section-locked">
+                <div class="card">
+                    <h3>📂 PHẦN III. TRẢ LỜI NGẮN</h3>
+                    
+                    <div class="question">
+                        <p class="question-text">Câu 1. Trong phân tử valine (2−amino−3−methylbutanoic acid) có bao nhiêu nguyên tử carbon?</p>
+                        <input type="text" class="check-text final-ans" data-ans="5,năm" placeholder="Nhập đáp án...">
+                    </div>
+                    
+                    <div class="question">
+                        <p class="question-text">Câu 2. Cho công thức tripeptide X có thứ tự các gốc amino acid: Gly-Ala-Val. Phân tử khối của X bằng bao nhiêu amu?</p>
+                        <input type="text" class="check-text final-ans" data-ans="245" placeholder="Nhập đáp án...">
+                    </div>
+
+                    <div class="question">
+                        <p class="question-text">Câu 3. Trong phân tử peptide cho dưới đây có bao nhiêu liên kết peptide?<br>
+                        H₂N-CH(CH₃)-CO-NH-CH₂-CO-NH-CH(CH₃)-CO-NH-CH(CH₃)-CO-NH-CH₂-COOH</p>
+                        <input type="text" class="check-text final-ans" data-ans="4,bốn" placeholder="Nhập đáp án...">
+                    </div>
+
+                    <div class="question">
+                        <p class="question-text" style="word-break: break-all;">Câu 4. Trong phân tử peptide cho dưới đây có bao nhiêu gốc alanine?<br>
+                        H₂N-CH(CH₃)-CO-NH-CH₂-CO-NH-CH(CH₃)-CO-NH-CH(CH(CH₃)₂)-CO-NH-CH(CH₃)-CO-NH-CH(CH₂C₆H₅)-CO-NH-CH(CH₃)-COOH</p>
+                        <input type="text" class="check-text final-ans" data-ans="4,bốn" placeholder="Nhập đáp án...">
+                    </div>
+
+                    <div class="question">
+                        <p class="question-text">Câu 5. Có bao nhiêu phát biểu đúng trong các phát biểu sau?<br>
+                        (a) Protein là hợp phần quan trọng trong thức ăn của người và nhiều loài động vật.<br>
+                        (b) Công thức phân tử của Glu-Ala-Lys có 4 nguyên tử nitrogen.<br>
+                        (c) Trùng ngưng ε-aminocaproic acid thì thu được polycaproamide.<br>
+                        (d) Hầu hết enzyme là protein, đóng vai trò là chất xúc tác sinh học cho các phản ứng sinh hoá trong cơ thể.<br>
+                        (e) Peptide Gly-Ala-Val-Glu có đầu C là Glu.<br>
+                        (f) “Gạch cua” nổi lên khi nấu riêu cua là hiện tượng đông tụ protein.</p>
+                        <input type="text" class="check-text final-ans" data-ans="5,năm" placeholder="Nhập đáp án...">
+                    </div>
+                </div>
+                
+                <!-- Bản báo cáo AI điểm số -->
+                <div id="score-board">
+                    <div id="score-text"></div>
+                    <div id="error-breakdown" class="error-analysis"></div>
+                </div>
+
+                <button type="button" class="btn-submit" onclick="gradeFinal()">🚀 NỘP BÀI TỔNG THỂ</button>
+            </div>
+        </form>
+    </div>
+
+    
+    <!-- AUDIO ENGINE (Web Audio API) -->
+    <script>
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if(!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if(audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            let btn = document.getElementById('btnSound');
+            if(soundEnabled) {
+                btn.innerHTML = '🔊 Âm thanh: BẬT';
+                btn.style.background = '#10b981';
+                initAudio();
+                sfxClick();
+            } else {
+                btn.innerHTML = '🔇 Âm thanh: TẮT';
+                btn.style.background = '#6b7280';
+            }
+        }
+
+        function playTone(freq, type, duration, vol=0.1) {
+            if(!soundEnabled) return;
+            initAudio();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function sfxClick() { playTone(600, 'sine', 0.1, 0.05); }
+        function sfxCorrect() { 
+            playTone(523.25, 'sine', 0.1, 0.1); 
+            setTimeout(() => playTone(659.25, 'sine', 0.15, 0.1), 100); 
+            setTimeout(() => playTone(783.99, 'sine', 0.2, 0.1), 200); 
+        }
+        function sfxWrong() {
+            playTone(300, 'sawtooth', 0.3, 0.1);
+            setTimeout(() => playTone(250, 'sawtooth', 0.4, 0.1), 200);
+        }
+        function sfxLevelUp() {
+            [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                setTimeout(() => playTone(f, 'square', 0.2, 0.05), i * 150);
+            });
+        }
+        function sfxWin() {
+            [523.25, 523.25, 523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                setTimeout(() => playTone(f, 'triangle', 0.3, 0.1), i * 200);
+            });
+        }
+
+        // Gắn sự kiện click cho toàn bộ radio và input để tạo tiếng 'tick'
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[type="radio"]').forEach(el => {
+                el.addEventListener('change', sfxClick);
+            });
+            document.querySelectorAll('input[type="text"]').forEach(el => {
+                el.addEventListener('input', () => { if(el.value.length === 1) sfxClick(); });
+            });
+            // Khởi tạo audio khi người dùng tương tác lần đầu
+            document.body.addEventListener('click', initAudio, {once: true});
+        });
+    </script>
+
+    <!-- LOGIC CHẤM ĐIỂM RẼ NHÁNH TỪNG PHẦN -->
+    <script>
+        let p1_attempts = 0;
+        let p2_attempts = 0;
+
+        // --- XỬ LÝ PHẦN 1 ---
+        function checkPart1() {
+            let name = document.getElementById('studentName').value;
+            if(!name) { alert("Vui lòng nhập Mã định danh thám tử trước khi làm bài!"); return; }
+
+            let p1Questions = document.querySelectorAll('.check-mcq-p1');
+            let correct = 0;
+
+            p1Questions.forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                
+                // Reset style
+                el.querySelectorAll('label').forEach(lbl => { lbl.style.borderColor = "#e5e7eb"; lbl.style.backgroundColor = "#fff"; });
+                
+                if (selected) {
+                    if (selected.value === ans) {
+                        selected.parentElement.style.borderColor = "var(--success)";
+                        selected.parentElement.style.backgroundColor = "#d1fae5";
+                        correct++;
+                    } else {
+                        selected.parentElement.style.borderColor = "var(--danger)";
+                        selected.parentElement.style.backgroundColor = "#fee2e2";
+                        // Hiện đáp án đúng
+                        el.querySelector(`input[value="${ans}"]`).parentElement.style.borderColor = "var(--success)";
+                    }
+                } else {
+                    // Cố tình bỏ trống thì hiện đúng
+                    el.querySelector(`input[value="${ans}"]`).parentElement.style.borderColor = "var(--success)";
+                }
+            });
+
+            if (correct >= 8) {
+                sfxLevelUp(); alert(`🎉 Bạn đã đúng ${correct}/10 câu Phần I. Xuất sắc! Mở khóa Phần II.`);
+                document.getElementById('btn-check-p1').style.display = 'none';
+                let part2 = document.getElementById('part2-section');
+                part2.style.display = 'block';
+                setTimeout(() => { part2.style.opacity = '1'; }, 100);
+                part2.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                p1_attempts++;
+                if (p1_attempts === 1) {
+                    sfxWrong(); alert(`⚠️ Bạn chỉ đúng ${correct}/10 câu. Cần >= 8 câu để đi tiếp. Vui lòng làm bài củng cố!`);
+                    document.getElementById('btn-check-p1').style.display = 'none';
+                    document.getElementById('remedial-p1').style.display = 'block';
+                } else {
+                    alert("🆘 TÍN HIỆU CẤP CỨU: Hệ thống nhận thấy bạn vẫn chưa vượt qua Phần I sau khi đã củng cố.\n\nHệ thống sẽ tự động điền các đáp án đúng để bạn ghi nhớ và tiếp tục nhiệm vụ!");
+                    p1Questions.forEach(el => {
+                        let ans = el.getAttribute('data-ans');
+                        let correctRadio = el.querySelector(`input[value="${ans}"]`);
+                        if(correctRadio) {
+                            correctRadio.checked = true;
+                            el.querySelectorAll('label').forEach(lbl => { lbl.style.borderColor = "#e5e7eb"; lbl.style.backgroundColor = "#fff"; });
+                            correctRadio.parentElement.style.borderColor = "var(--success)";
+                            correctRadio.parentElement.style.backgroundColor = "#d1fae5";
+                        }
+                    });
+                    document.getElementById('btn-check-p1').style.display = 'none';
+                    let part2 = document.getElementById('part2-section');
+                    part2.style.display = 'block';
+                    setTimeout(() => { part2.style.opacity = '1'; }, 100);
+                    part2.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        function verifyRemedialP1() {
+            let rems = document.querySelectorAll('.check-rem-p1');
+            let allCorrect = true;
+            rems.forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                el.querySelectorAll('label').forEach(lbl => { lbl.style.borderColor = "#e5e7eb"; lbl.style.backgroundColor = "#fff"; });
+
+                if(selected && selected.value === ans) {
+                    selected.parentElement.style.backgroundColor = "#d1fae5";
+                    selected.parentElement.style.borderColor = "var(--success)";
+                } else {
+                    allCorrect = false;
+                    if(selected) { selected.parentElement.style.backgroundColor = "#fee2e2"; selected.parentElement.style.borderColor = "var(--danger)"; }
+                }
+            });
+
+            if(allCorrect) {
+                sfxLevelUp(); alert("✅ Bạn đã vượt qua bài củng cố Phần I.\n\nBây giờ, hãy quay lại Phần I và tự tay sửa lại các câu sai. Nhấn 'XÁC THỰC LẠI' để đi tiếp.");
+                document.getElementById('remedial-p1').style.display = 'none';
+                document.getElementById('btn-check-p1').style.display = 'block';
+                document.getElementById('btn-check-p1').innerText = "🛑 XÁC THỰC LẠI PHẦN I";
+                document.getElementById('btn-check-p1').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                sfxWrong(); alert("❌ Bạn trả lời sai câu hỏi củng cố. Hãy đọc kỹ lại và thử lại.");
+            }
+        }
+
+        // --- XỬ LÝ PHẦN 2 ---
+        function checkPart2() {
+            let p2Questions = document.querySelectorAll('.check-tf-p2');
+            let correct = 0;
+            let total = p2Questions.length; // 16 ý
+
+            p2Questions.forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                
+                el.querySelectorAll('label').forEach(lbl => { lbl.style.backgroundColor = "#fff"; });
+
+                if (selected) {
+                    if (selected.value === ans) {
+                        selected.parentElement.style.backgroundColor = "#d1fae5";
+                        correct++;
+                    } else {
+                        selected.parentElement.style.backgroundColor = "#fee2e2";
+                    }
+                }
+            });
+
+            if (correct >= 12) { // Tương đương đúng 3/4 số ý (75%)
+                sfxLevelUp(); alert(`🎉 Bạn đã phân tích đúng ${correct}/${total} ý Phần II. Xuất sắc! Mở khóa Phần III.`);
+                document.getElementById('btn-check-p2').style.display = 'none';
+                let part3 = document.getElementById('part3-section');
+                part3.style.display = 'block';
+                setTimeout(() => { part3.style.opacity = '1'; }, 100);
+                part3.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                p2_attempts++;
+                if (p2_attempts === 1) {
+                    sfxWrong(); alert(`⚠️ Bạn phân tích đúng ${correct}/${total} ý. Cần >= 12 ý để đi tiếp. Vui lòng làm bài củng cố!`);
+                    document.getElementById('btn-check-p2').style.display = 'none';
+                    document.getElementById('remedial-p2').style.display = 'block';
+                } else {
+                    alert("🆘 TÍN HIỆU CẤP CỨU: Hệ thống nhận thấy bạn vẫn chưa vượt qua Phần II.\n\nHệ thống sẽ tự động điền các đáp án đúng để bạn ghi nhớ và tiếp tục nhiệm vụ!");
+                    p2Questions.forEach(el => {
+                        let ans = el.getAttribute('data-ans');
+                        let correctRadio = el.querySelector(`input[value="${ans}"]`);
+                        if(correctRadio) {
+                            correctRadio.checked = true;
+                            el.querySelectorAll('label').forEach(lbl => { lbl.style.backgroundColor = "#fff"; });
+                            correctRadio.parentElement.style.backgroundColor = "#d1fae5";
+                        }
+                    });
+                    document.getElementById('btn-check-p2').style.display = 'none';
+                    let part3 = document.getElementById('part3-section');
+                    part3.style.display = 'block';
+                    setTimeout(() => { part3.style.opacity = '1'; }, 100);
+                    part3.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        function verifyRemedialP2() {
+            let rems = document.querySelectorAll('.check-rem-p2');
+            let allCorrect = true;
+            rems.forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                el.querySelectorAll('label').forEach(lbl => { lbl.style.borderColor = "#e5e7eb"; lbl.style.backgroundColor = "#fff"; });
+
+                if(selected && selected.value === ans) {
+                    selected.parentElement.style.backgroundColor = "#d1fae5";
+                    selected.parentElement.style.borderColor = "var(--success)";
+                } else {
+                    allCorrect = false;
+                    if(selected) { selected.parentElement.style.backgroundColor = "#fee2e2"; selected.parentElement.style.borderColor = "var(--danger)"; }
+                }
+            });
+
+            if(allCorrect) {
+                sfxLevelUp(); alert("✅ Bạn đã vượt qua bài củng cố Phần II.\n\nBây giờ, hãy quay lại Phần II và tự tay sửa lại các ý bị sai. Nhấn 'XÁC THỰC LẠI' để đi tiếp.");
+                document.getElementById('remedial-p2').style.display = 'none';
+                document.getElementById('btn-check-p2').style.display = 'block';
+                document.getElementById('btn-check-p2').innerText = "🛑 XÁC THỰC LẠI PHẦN II";
+                document.getElementById('btn-check-p2').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                sfxWrong(); alert("❌ Bạn trả lời sai câu hỏi củng cố. Hãy đọc kỹ lại và thử lại.");
+            }
+        }
+
+        // --- XỬ LÝ CHẤM TỔNG VÀ GỬI GOOGLE SHEETS ---
+        function gradeFinal() {
+            let correctP3 = 0;
+            let totalItems = 10 + 16 + 5; // 10 MCQ + 16 TF + 5 Text = 31 Items
+            
+            // Đếm lại P1
+            let correctP1 = 0;
+            document.querySelectorAll('.check-mcq-p1').forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                if (selected && selected.value === ans) correctP1++;
+            });
+
+            // Đếm lại P2
+            let correctP2 = 0;
+            document.querySelectorAll('.check-tf-p2').forEach(el => {
+                let ans = el.getAttribute('data-ans');
+                let selected = el.querySelector('input[type="radio"]:checked');
+                if (selected && selected.value === ans) correctP2++;
+            });
+
+            // Chấm P3
+            document.querySelectorAll('.final-ans').forEach(el => {
+                let userVal = el.value.trim().toLowerCase();
+                let ansArr = el.getAttribute('data-ans').split(',');
+                
+                if (ansArr.includes(userVal) && userVal !== "") {
+                    el.style.borderColor = "var(--success)";
+                    el.style.backgroundColor = "#d1fae5";
+                    correctP3++;
+                } else {
+                    el.style.borderColor = "var(--danger)";
+                    el.style.backgroundColor = "#fee2e2";
+                    // Thêm gợi ý đáp án đỏ nếu sai
+                    let fb = document.createElement("span");
+                    fb.className = "feedback err";
+                    fb.innerText = "✗ Đáp án đúng: " + ansArr[0];
+                    if(!el.nextElementSibling) el.parentNode.insertBefore(fb, el.nextSibling);
+                }
+            });
+
+            let totalCorrect = correctP1 + correctP2 + correctP3;
+            let finalScore = (totalCorrect / totalItems) * 10;
+
+            let board = document.getElementById('score-board');
+            board.style.display = 'block';
+            
+            sfxWin(); let scoreTextHTML = `ĐIỂM TỔNG KẾT: ${finalScore.toFixed(2)} / 10<br><span style="font-size:1.1rem; color:#4b5563;">(Khám phá đúng ${totalCorrect}/${totalItems} manh mối)</span>`;
+            document.getElementById('score-text').innerHTML = scoreTextHTML;
+
+            let breakdownHTML = `<h4>📊 Báo cáo phân tích (Hệ thống AI):</h4><ul>
+                <li><b>Phần I (Trắc nghiệm):</b> Đúng ${correctP1}/10</li>
+                <li><b>Phần II (Đúng/Sai):</b> Đúng ${correctP2}/16 ý</li>
+                <li><b>Phần III (Trả lời ngắn):</b> Đúng ${correctP3}/5</li>
+            </ul>`;
+            document.getElementById('error-breakdown').innerHTML = breakdownHTML;
+
+            // -- GỬI LÊN GOOGLE SHEETS --
+            let webAppUrl = "https://script.google.com/macros/s/AKfycbxogIQB7mWM6ui9UGh8KaBDfoUZVRIMnSRPrlm4_JaMG0asS2PeVuGz17AYCtpFKUFV/exec"; 
+
+            let payload = {
+                hoTen: document.getElementById('studentName').value,
+                lop: document.getElementById('studentClass').value || "Không ghi",
+                diem: finalScore.toFixed(2),
+                cauDung: totalCorrect,
+                cauSai: totalItems - totalCorrect,
+                cauChuaLam: 0,
+                tongSoCau: totalItems,
+                loi_hs1: 0,
+                loi_hs2: 0,
+                loi_hs3: 0,
+                loi_hs4_mcq: 10 - correctP1,
+                loi_hs4_tf: 16 - correctP2,
+                loi_hs4_short: 5 - correctP3
+            };
+
+            let submitBtn = document.querySelector('.btn-submit');
+            submitBtn.innerText = "⏳ ĐANG LƯU DỮ LIỆU LÊN HỆ THỐNG...";
+            submitBtn.disabled = true;
+
+            fetch(webAppUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(data => {
+                submitBtn.innerText = "✅ ĐÃ NỘP BÀI & LƯU ĐIỂM THÀNH CÔNG";
+            }).catch(e => {
+                submitBtn.innerText = "⚠️ LƯU ĐIỂM TRÊN MÁY (CHƯA KẾT NỐI SHEETS)";
+                submitBtn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
